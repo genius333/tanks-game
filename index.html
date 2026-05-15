@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Танчики v0.2 (Брусчатка)</title>
+<style>
+  body {
+    margin: 0;
+    background-color: #111;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  canvas {
+    border: 4px solid #333;
+    box-shadow: 0 0 20px rgba(0,0,0,0.8);
+  }
+</style>
+</head>
+<body>
+
+<canvas id="gameCanvas"></canvas>
+
+<script>
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+
+  const GAME_SIZE = 520; 
+  canvas.width = GAME_SIZE;
+  canvas.height = GAME_SIZE;
+
+  const player = {
+    x: 200, y: 200, size: 40, speed: 3, 
+    color: '#FFD700', direction: 'up'
+  };
+
+  const keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false };
+
+  window.addEventListener('keydown', (e) => { if(keys.hasOwnProperty(e.code)) keys[e.code] = true; });
+  window.addEventListener('keyup', (e) => { if(keys.hasOwnProperty(e.code)) keys[e.code] = false; });
+
+  // ФУНКЦИЯ РИСОВАНИЯ ФОНА (Брусчатка)
+  function drawBackground() {
+    // Сначала заливаем всё "швом" (темно-серый)
+    ctx.fillStyle = '#2a2a2a'; 
+    ctx.fillRect(0, 0, GAME_SIZE, GAME_SIZE);
+    // Рисуем сами кирпичи
+    ctx.fillStyle = '#555555'; // Цвет кирпича
+    const w = 40; // ширина кирпича
+    const h = 20; // высота кирпича
+
+    for (let y = 0; y < GAME_SIZE; y += h) {
+      // Сдвигаем каждый второй ряд для эффекта кладки
+      const offset = (y / h) % 2 === 0 ? 0 : w / 2;
+      
+      for (let x = -w; x < GAME_SIZE; x += w) {
+        // Рисуем кирпич с небольшим отступом (чтобы швы были видны)
+        ctx.fillRect(x + offset + 1, y + 1, w - 2, h - 2);
+      }
+    }
+  }
+
+  function update() {
+    if (keys.ArrowUp) { player.y -= player.speed; player.direction = 'up'; }
+    if (keys.ArrowDown) { player.y += player.speed; player.direction = 'down'; }
+    if (keys.ArrowLeft) { player.x -= player.speed; player.direction = 'left'; }
+    if (keys.ArrowRight) { player.x += player.speed; player.direction = 'right'; }
+
+    // Границы
+    if (player.x < 0) player.x = 0;
+    if (player.y < 0) player.y = 0;
+    if (player.x > GAME_SIZE - player.size) player.x = GAME_SIZE - player.size;
+    if (player.y > GAME_SIZE - player.size) player.y = GAME_SIZE - player.size;
+  }
+
+  function draw() {
+    // Вместо серого фона вызываем функцию с кирпичами
+    drawBackground();
+
+    // Рисуем танк
+    ctx.fillStyle = player.color;
+    ctx.fillRect(player.x, player.y, player.size, player.size);
+    
+    ctx.fillStyle = '#FFF';
+    const gunSize = 10;
+    if (player.direction === 'up') ctx.fillRect(player.x + 15, player.y - 10, gunSize, 20);
+    else if (player.direction === 'down') ctx.fillRect(player.x + 15, player.y + 30, gunSize, 20);
+    else if (player.direction === 'left') ctx.fillRect(player.x - 10, player.y + 15, 20, gunSize);
+    else if (player.direction === 'right') ctx.fillRect(player.x + 30, player.y + 15, 20, gunSize);
+  }
+
+  function gameLoop() {
+    update();
+    draw();
+    requestAnimationFrame(gameLoop);
+  }
+  gameLoop();
+</script>
+</body>
+</html>
