@@ -3,24 +3,116 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Танчики v2.0 (Звук, Уровни, HP базы)</title>
+<title>Танчики v2.1</title>
 <style>
-  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  body { margin: 0; background: #111; overflow: hidden; display: flex; flex-direction: column; height: 100vh; touch-action: none; font-family: sans-serif; user-select: none; }
-  #hud { height: 40px; background: #222; color: #fff; display: flex; justify-content: space-around; align-items: center; font-weight: bold; font-size: 15px; border-bottom: 2px solid #444; flex-shrink: 0; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+  body { 
+    background: #111; 
+    overflow: hidden; 
+    display: flex; 
+    flex-direction: column; 
+    height: 100vh; 
+    touch-action: none; 
+    font-family: sans-serif; 
+    user-select: none;
+  }
+  #hud { 
+    height: 40px; 
+    background: #222; 
+    color: #fff; 
+    display: flex; 
+    justify-content: space-around; 
+    align-items: center; 
+    font-weight: bold; 
+    font-size: 15px; 
+    border-bottom: 2px solid #444; 
+    flex-shrink: 0; 
+  }
   .hud-item span { color: #FFD700; }
-  #game-area { flex: 1; display: flex; justify-content: center; align-items: center; background: #000; overflow: hidden; position: relative; }
-  canvas { width: 100%; height: 100%; object-fit: contain; background: #000; }
-  #controls { height: 140px; background: #111; display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; flex-shrink: 0; }
-  #fire-btn { width: 75px; height: 75px; background: rgba(255,50,50,0.3); border: 3px solid #ff5555; border-radius: 50%; color: #fff; font-size: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  #game-area { 
+    flex: 1; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    background: #000; 
+    overflow: hidden; 
+    position: relative; 
+  }
+  canvas { 
+    width: 100%; 
+    height: 100%; 
+    object-fit: contain; 
+    background: #000; 
+    display: block;
+  }
+  #controls { 
+    height: 140px; 
+    background: #111;     display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    padding: 10px 20px; 
+    flex-shrink: 0; 
+  }
+  #fire-btn { 
+    width: 75px; 
+    height: 75px; 
+    background: rgba(255,50,50,0.3); 
+    border: 3px solid #ff5555; 
+    border-radius: 50%; 
+    color: #fff; 
+    font-size: 30px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    cursor: pointer; 
+  }
   #fire-btn.active { background: rgba(255,50,50,0.8); transform: scale(0.95); }
-  #dpad { display: grid; grid-template-columns: 60px 60px 60px; grid-template-rows: 60px 60px; gap: 6px; }
-  .ctrl-btn { width: 60px; height: 60px; background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.3); border-radius: 12px; color: #fff; font-size: 24px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  #dpad { 
+    display: grid; 
+    grid-template-columns: 60px 60px 60px; 
+    grid-template-rows: 60px 60px; 
+    gap: 6px; 
+  }
+  .ctrl-btn { 
+    width: 60px; 
+    height: 60px; 
+    background: rgba(255,255,255,0.1); 
+    border: 2px solid rgba(255,255,255,0.3); 
+    border-radius: 12px; 
+    color: #fff; 
+    font-size: 24px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    cursor: pointer; 
+  }
   .ctrl-btn.active { background: rgba(255,215,0,0.6); border-color: #FFD700; }
-  #up { grid-column: 2; grid-row: 1; } #left { grid-column: 1; grid-row: 2; } #down { grid-column: 2; grid-row: 2; } #right { grid-column: 3; grid-row: 2; }
+  #up { grid-column: 2; grid-row: 1; } 
+  #left { grid-column: 1; grid-row: 2; } 
+  #down { grid-column: 2; grid-row: 2; } 
+  #right { grid-column: 3; grid-row: 2; }
   
-  #overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); color: #fff; flex-direction: column; align-items: center; justify-content: center; z-index: 200; text-align: center; }
-  #overlay h1 { margin: 0 0 10px; font-size: 28px; color: #FFD700; text-shadow: 0 0 10px #FFD700; }
+  #overlay { 
+    display: none; 
+    position: absolute; 
+    top: 0; 
+    left: 0;     width: 100%; 
+    height: 100%; 
+    background: rgba(0,0,0,0.85); 
+    color: #fff; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center; 
+    z-index: 200; 
+    text-align: center; 
+    cursor: pointer;
+  }
+  #overlay h1 { 
+    margin: 0 0 10px; 
+    font-size: 28px; 
+    color: #FFD700; 
+    text-shadow: 0 0 10px #FFD700; 
+  }
   #overlay p { margin: 0; font-size: 16px; color: #aaa; }
 </style>
 </head>
@@ -36,8 +128,8 @@
 <div id="game-area">
   <canvas id="gameCanvas"></canvas>
   <div id="overlay">
-    <h1 id="ov-title">УРОВЕНЬ 1</h1>
-    <p id="ov-sub">Приготовьтесь...</p>
+    <h1 id="ov-title">ТАНЧИКИ v2.1</h1>
+    <p id="ov-sub">Тапни чтобы начать</p>
   </div>
 </div>
 
@@ -47,44 +139,84 @@
     <div class="ctrl-btn" id="up">▲</div>
     <div class="ctrl-btn" id="left">◀</div>
     <div class="ctrl-btn" id="down">▼</div>
-    <div class="ctrl-btn" id="right">▶</div>  </div>
+    <div class="ctrl-btn" id="right">▶</div>
+  </div>
 </div>
 
 <script>
-  // 🎵 АУДИО ДВИЖОК (Без внешних файлов)
-  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  let audioEnabled = false;
-  function enableAudio() { if(!audioEnabled) { audioCtx.resume(); audioEnabled = true; } }
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');  const GAME_SIZE = 520; 
+  canvas.width = GAME_SIZE; 
+  canvas.height = GAME_SIZE;
 
-  function playSound(type) {
-    if(!audioEnabled) return;
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.connect(gain); gain.connect(audioCtx.destination);
-    const now = audioCtx.currentTime;
-    
-    if(type === 'shoot') {
-      osc.type = 'square'; osc.frequency.setValueAtTime(800, now); osc.frequency.exponentialRampToValueAtTime(100, now+0.1);
-      gain.gain.setValueAtTime(0.15, now); gain.gain.exponentialRampToValueAtTime(0.01, now+0.1);
-      osc.start(now); osc.stop(now+0.1);
-    } else if(type === 'explode') {
-      osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, now); osc.frequency.exponentialRampToValueAtTime(30, now+0.3);
-      gain.gain.setValueAtTime(0.2, now); gain.gain.exponentialRampToValueAtTime(0.01, now+0.3);
-      osc.start(now); osc.stop(now+0.3);
-    } else if(type === 'hit') {
-      osc.type = 'triangle'; osc.frequency.setValueAtTime(300, now); osc.frequency.linearRampToValueAtTime(50, now+0.1);
-      gain.gain.setValueAtTime(0.15, now); gain.gain.linearRampToValueAtTime(0.01, now+0.1);
-      osc.start(now); osc.stop(now+0.1);
-    } else if(type === 'levelup') {
-      osc.type = 'sine'; osc.frequency.setValueAtTime(400, now); osc.frequency.setValueAtTime(600, now+0.1); osc.frequency.setValueAtTime(800, now+0.2);
-      gain.gain.setValueAtTime(0.15, now); gain.gain.linearRampToValueAtTime(0.01, now+0.4);
-      osc.start(now); osc.stop(now+0.4);
+  // Аудио
+  let audioCtx = null;
+  let audioEnabled = false;
+  
+  function initAudio() {
+    if (!audioCtx) {
+      try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        audioEnabled = true;
+      } catch(e) {
+        console.log('Audio not supported');
+      }
+    }
+    if (audioCtx && audioCtx.state === 'suspended') {
+      audioCtx.resume();
     }
   }
 
-  // 🗺️ УРОВНИ
+  function playSound(type) {
+    if (!audioEnabled || !audioCtx) return;
+    try {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain); 
+      gain.connect(audioCtx.destination);
+      const now = audioCtx.currentTime;
+      
+      if (type === 'shoot') {
+        osc.type = 'square'; 
+        osc.frequency.setValueAtTime(800, now); 
+        osc.frequency.exponentialRampToValueAtTime(100, now + 0.1);
+        gain.gain.setValueAtTime(0.15, now); 
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+        osc.start(now); 
+        osc.stop(now + 0.1);
+      } else if (type === 'explode') {
+        osc.type = 'sawtooth'; 
+        osc.frequency.setValueAtTime(150, now); 
+        osc.frequency.exponentialRampToValueAtTime(30, now + 0.3);
+        gain.gain.setValueAtTime(0.2, now); 
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+        osc.start(now); 
+        osc.stop(now + 0.3);
+      } else if (type === 'hit') {
+        osc.type = 'triangle'; 
+        osc.frequency.setValueAtTime(300, now);         osc.frequency.linearRampToValueAtTime(50, now + 0.1);
+        gain.gain.setValueAtTime(0.15, now); 
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.1);
+        osc.start(now); 
+        osc.stop(now + 0.1);
+      } else if (type === 'levelup') {
+        osc.type = 'sine'; 
+        osc.frequency.setValueAtTime(400, now); 
+        osc.frequency.setValueAtTime(600, now + 0.1); 
+        osc.frequency.setValueAtTime(800, now + 0.2);
+        gain.gain.setValueAtTime(0.15, now); 
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.4);
+        osc.start(now); 
+        osc.stop(now + 0.4);
+      }
+    } catch(e) {
+      console.log('Sound error:', e);
+    }
+  }
+
+  // Уровни
   const LEVELS = [
-    { // Уровень 1: Классика
+    {
       walls: [
         {x:40,y:100,w:60,h:40}, {x:230,y:100,w:60,h:40}, {x:420,y:100,w:60,h:40},
         {x:120,y:180,w:40,h:40}, {x:360,y:180,w:40,h:40}, {x:240,y:220,w:40,h:80},
@@ -93,15 +225,16 @@
         {x:200,y:440,w:40,h:20}, {x:280,y:440,w:40,h:20}, {x:240,y:420,w:40,h:20}
       ], enemies: 20, speed: 1.2
     },
-    { // Уровень 2: Лабиринт
+    {
       walls: [
         {x:80,y:80,w:40,h:120}, {x:400,y:80,w:40,h:120},
-        {x:200,y:160,w:120,h:40}, {x:200,y:280,w:120,h:40},        {x:120,y:360,w:40,h:80}, {x:360,y:360,w:40,h:80},
+        {x:200,y:160,w:120,h:40}, {x:200,y:280,w:120,h:40},
+        {x:120,y:360,w:40,h:80}, {x:360,y:360,w:40,h:80},
         {x:40,y:240,w:60,h:40}, {x:420,y:240,w:60,h:40},
         {x:200,y:440,w:40,h:20}, {x:280,y:440,w:40,h:20}, {x:240,y:420,w:40,h:20}
       ], enemies: 25, speed: 1.5
     },
-    { // Уровень 3: Хаос
+    {
       walls: [
         {x:60,y:60,w:80,h:40}, {x:220,y:60,w:80,h:40}, {x:380,y:60,w:80,h:40},
         {x:140,y:160,w:40,h:80}, {x:340,y:160,w:40,h:80},
@@ -110,13 +243,7 @@
         {x:180,y:400,w:40,h:40}, {x:300,y:400,w:40,h:40},
         {x:200,y:440,w:40,h:20}, {x:280,y:440,w:40,h:20}, {x:240,y:420,w:40,h:20}
       ], enemies: 30, speed: 1.8
-    }
-  ];
-
-  const canvas = document.getElementById('gameCanvas');
-  const ctx = canvas.getContext('2d');
-  const GAME_SIZE = 520; 
-  canvas.width = GAME_SIZE; canvas.height = GAME_SIZE;
+    }  ];
 
   let score = 0, lives = 3, currentLevel = 0, state = 'levelStart';
   let spawnTimer = 0, hitFlash = 0, levelDelay = 0;
@@ -132,36 +259,74 @@
   const enemies = [];
   const keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false, Space: false };
 
+  // Управление
   function bindBtn(id, key) {
     const btn = document.getElementById(id);
-    const on = (e) => { e.preventDefault(); enableAudio(); keys[key] = true; btn.classList.add('active'); };
-    const off = (e) => { e.preventDefault(); keys[key] = false; btn.classList.remove('active'); };
+    const on = (e) => { 
+      e.preventDefault(); 
+      initAudio();
+      keys[key] = true; 
+      btn.classList.add('active'); 
+    };
+    const off = (e) => { 
+      e.preventDefault(); 
+      keys[key] = false; 
+      btn.classList.remove('active'); 
+    };
     btn.addEventListener('touchstart', on, {passive: false});
     btn.addEventListener('touchend', off, {passive: false});
-    btn.addEventListener('mousedown', on); btn.addEventListener('mouseup', off); btn.addEventListener('mouseleave', off);
+    btn.addEventListener('mousedown', on); 
+    btn.addEventListener('mouseup', off); 
+    btn.addEventListener('mouseleave', off);
   }
   bindBtn('fire-btn', 'Space');
-  bindBtn('up', 'ArrowUp'); bindBtn('down', 'ArrowDown'); bindBtn('left', 'ArrowLeft'); bindBtn('right', 'ArrowRight');
+  bindBtn('up', 'ArrowUp'); 
+  bindBtn('down', 'ArrowDown'); 
+  bindBtn('left', 'ArrowLeft'); 
+  bindBtn('right', 'ArrowRight');
 
-  document.getElementById('overlay').addEventListener('pointerdown', () => {
-    if(state === 'levelStart') loadLevel(currentLevel);
-    else if(state === 'gameOver' || state === 'win') resetGame();  });
+  // Старт игры
+  function startGame() {
+    initAudio();
+    if (state === 'levelStart') {
+      loadLevel(currentLevel);
+    } else if (state === 'gameOver' || state === 'win') {
+      resetGame();
+    }  }
+
+  document.getElementById('overlay').addEventListener('click', startGame);
+  document.getElementById('overlay').addEventListener('touchstart', startGame, {passive: false});
 
   function resetGame() {
-    score = 0; lives = 3; currentLevel = 0;
+    score = 0; 
+    lives = 3; 
+    currentLevel = 0;
     loadLevel(0);
   }
 
   function loadLevel(idx) {
-    if(idx >= LEVELS.length) { state = 'win'; showOverlay('ПОБЕДА!', `Финальный счёт: ${score}`); return; }
+    if (idx >= LEVELS.length) { 
+      state = 'win'; 
+      showOverlay('🏆 ПОБЕДА!', `Финальный счёт: ${score}`); 
+      return; 
+    }
     currentLevel = idx;
     const lvl = LEVELS[idx];
     walls = lvl.walls.map(w => ({...w}));
-    enemies.length = 0; bullets.length = 0;
-    player.x = 100; player.y = 460; player.alive = true; player.invincible = 60;
-    base.hp = 3; base.destroyed = false; base.hitCooldown = 0;
-    enemiesToSpawn = lvl.enemies; enemySpeed = lvl.speed;
-    spawnTimer = 0; hitFlash = 0; state = 'playing';
+    enemies.length = 0; 
+    bullets.length = 0;
+    player.x = 100; 
+    player.y = 460; 
+    player.alive = true; 
+    player.invincible = 60;
+    base.hp = 3; 
+    base.destroyed = false; 
+    base.hitCooldown = 0;
+    enemiesToSpawn = lvl.enemies; 
+    enemySpeed = lvl.speed;
+    spawnTimer = 0; 
+    hitFlash = 0; 
+    state = 'playing';
     document.getElementById('overlay').style.display = 'none';
     updateHUD();
   }
@@ -176,8 +341,7 @@
   function updateHUD() {
     document.getElementById('lives').innerText = lives;
     document.getElementById('level').innerText = currentLevel + 1;
-    document.getElementById('score').innerText = score;
-    document.getElementById('enemies').innerText = enemiesToSpawn + enemies.length;
+    document.getElementById('score').innerText = score;    document.getElementById('enemies').innerText = enemiesToSpawn + enemies.length;
   }
 
   let walls = [];
@@ -194,7 +358,8 @@
     if(intersect(r, base)) return false;
     if(player.alive && intersect(r, player)) return false;
     for(let e of enemies) if(intersect(r, e)) return false;
-    return true;  }
+    return true;
+  }
 
   function spawnEnemy() {
     if (enemiesToSpawn <= 0 || enemies.length >= 3) return;
@@ -202,7 +367,16 @@
     spots.sort(() => Math.random() - 0.5);
     for(let s of spots) {
       if(isClear(s.x, s.y, 36)) {
-        enemies.push({ x: s.x, y: s.y, size: 36, speed: enemySpeed, color: '#FF4444', direction: 'down', moveTimer: 0, shootTimer: 80 });
+        enemies.push({ 
+          x: s.x, 
+          y: s.y, 
+          size: 36, 
+          speed: enemySpeed, 
+          color: '#FF4444', 
+          direction: 'down', 
+          moveTimer: 0, 
+          shootTimer: 80 
+        });
         enemiesToSpawn--;
         updateHUD();
         return;
@@ -212,71 +386,140 @@
 
   function playerHit() {
     if(player.invincible > 0) return;
-    lives--; hitFlash = 8; updateHUD();
+    lives--; 
+    hitFlash = 8; 
+    updateHUD();
     playSound('hit');
-    if (lives <= 0) {
-      player.alive = false; state = 'gameOver';
-      showOverlay('ТАНК УНИЧТОЖЕН', `Счёт: ${score}`);
+    if (lives <= 0) {      player.alive = false; 
+      state = 'gameOver';
+      showOverlay('💥 ТАНК УНИЧТОЖЕН', `Счёт: ${score}`);
     } else {
-      player.x = 100; player.y = 460; player.invincible = 90;
+      player.x = 100; 
+      player.y = 460; 
+      player.invincible = 90;
     }
   }
 
   function drawBackground() {
-    ctx.fillStyle = '#2a2a2a'; ctx.fillRect(0, 0, GAME_SIZE, GAME_SIZE);
-    ctx.fillStyle = '#555555'; const w = 40, h = 20;
+    ctx.fillStyle = '#2a2a2a'; 
+    ctx.fillRect(0, 0, GAME_SIZE, GAME_SIZE);
+    ctx.fillStyle = '#555555'; 
+    const w = 40, h = 20;
     for (let y = 0; y < GAME_SIZE; y += h) {
       const off = (y / h) % 2 === 0 ? 0 : w / 2;
-      for (let x = -w; x < GAME_SIZE; x += w) ctx.fillRect(x + off + 1, y + 1, w - 2, h - 2);
+      for (let x = -w; x < GAME_SIZE; x += w) 
+        ctx.fillRect(x + off + 1, y + 1, w - 2, h - 2);
     }
   }
 
   function drawBase() {
     if (base.destroyed) {
-      ctx.fillStyle = '#333'; ctx.beginPath(); ctx.arc(base.x+18, base.y+18, 18, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#555'; ctx.font = '10px Arial'; ctx.fillText('X', base.x+14, base.y+22);
+      ctx.fillStyle = '#333'; 
+      ctx.beginPath(); 
+      ctx.arc(base.x+18, base.y+18, 18, 0, Math.PI*2); 
+      ctx.fill();
+      ctx.fillStyle = '#555'; 
+      ctx.font = '10px Arial'; 
+      ctx.fillText('X', base.x+14, base.y+22);
     } else {
-      ctx.fillStyle = '#8B4513'; ctx.fillRect(base.x, base.y, base.w, base.h);
-      ctx.fillStyle = '#DAA520'; ctx.beginPath(); ctx.arc(base.x+18, base.y+12, 9, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(base.x+14, base.y+9, 3, 0, Math.PI*2); ctx.arc(base.x+22, base.y+9, 3, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(base.x+14, base.y+9, 1.5, 0, Math.PI*2); ctx.arc(base.x+22, base.y+9, 1.5, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#FFA500'; ctx.beginPath(); ctx.moveTo(base.x+18, base.y+15); ctx.lineTo(base.x+15, base.y+21); ctx.lineTo(base.x+21, base.y+21); ctx.closePath(); ctx.fill();
-      ctx.fillStyle = '#8B4513'; ctx.fillRect(base.x-4, base.y+18, 10, 14); ctx.fillRect(base.x+30, base.y+18, 10, 14);
+      ctx.fillStyle = '#8B4513'; 
+      ctx.fillRect(base.x, base.y, base.w, base.h);
+      ctx.fillStyle = '#DAA520'; 
+      ctx.beginPath(); 
+      ctx.arc(base.x+18, base.y+12, 9, 0, Math.PI*2); 
+      ctx.fill();
+      ctx.fillStyle = '#fff'; 
+      ctx.beginPath(); 
+      ctx.arc(base.x+14, base.y+9, 3, 0, Math.PI*2); 
+      ctx.arc(base.x+22, base.y+9, 3, 0, Math.PI*2); 
+      ctx.fill();
+      ctx.fillStyle = '#000'; 
+      ctx.beginPath(); 
+      ctx.arc(base.x+14, base.y+9, 1.5, 0, Math.PI*2); 
+      ctx.arc(base.x+22, base.y+9, 1.5, 0, Math.PI*2); 
+      ctx.fill();
+      ctx.fillStyle = '#FFA500'; 
+      ctx.beginPath();       ctx.moveTo(base.x+18, base.y+15); 
+      ctx.lineTo(base.x+15, base.y+21); 
+      ctx.lineTo(base.x+21, base.y+21); 
+      ctx.closePath(); 
+      ctx.fill();
+      ctx.fillStyle = '#8B4513'; 
+      ctx.fillRect(base.x-4, base.y+18, 10, 14); 
+      ctx.fillRect(base.x+30, base.y+18, 10, 14);
       
-      // Трещины при повреждении      if(base.hp < 3) {
-        ctx.strokeStyle = '#222'; ctx.lineWidth = 2; ctx.beginPath();
-        ctx.moveTo(base.x+5, base.y+5); ctx.lineTo(base.x+15, base.y+15);
-        ctx.moveTo(base.x+30, base.y+10); ctx.lineTo(base.x+20, base.y+25);
+      if(base.hp < 3) {
+        ctx.strokeStyle = '#222'; 
+        ctx.lineWidth = 2; 
+        ctx.beginPath();
+        ctx.moveTo(base.x+5, base.y+5); 
+        ctx.lineTo(base.x+15, base.y+15);
+        ctx.moveTo(base.x+30, base.y+10); 
+        ctx.lineTo(base.x+20, base.y+25);
         ctx.stroke();
       }
-      ctx.fillStyle = '#FFD700'; ctx.font = 'bold 11px Arial'; ctx.fillText('EAGLE', base.x+3, base.y+48);
+      ctx.fillStyle = '#FFD700'; 
+      ctx.font = 'bold 11px Arial'; 
+      ctx.fillText('EAGLE', base.x+3, base.y+48);
     }
   }
 
   function drawWalls() {
     ctx.fillStyle = '#8B4513';
-    walls.forEach(w => { ctx.fillRect(w.x, w.y, w.w, w.h); ctx.strokeStyle = '#5C2E0B'; ctx.lineWidth = 2; ctx.strokeRect(w.x, w.y, w.w, w.h); });
+    walls.forEach(w => { 
+      ctx.fillRect(w.x, w.y, w.w, w.h); 
+      ctx.strokeStyle = '#5C2E0B'; 
+      ctx.lineWidth = 2; 
+      ctx.strokeRect(w.x, w.y, w.w, w.h); 
+    });
   }
 
   function drawTank(x, y, s, dir, col, blink=false) {
     if(blink && Math.floor(Date.now()/80)%2===0) return;
-    ctx.save(); ctx.translate(x+s/2, y+s/2);
+    ctx.save(); 
+    ctx.translate(x+s/2, y+s/2);
     const ang = {up:0, right:Math.PI/2, down:Math.PI, left:-Math.PI/2}[dir]||0;
-    ctx.rotate(ang); const h=s/2;
-    ctx.fillStyle='#2c2c2c'; ctx.fillRect(-h,-h,7,s); ctx.fillRect(h-7,-h,7,s);
-    ctx.fillStyle='#4a4a4a'; for(let i=-h;i<h;i+=9){ctx.fillRect(-h+1,i,3,5);ctx.fillRect(h-4,i,3,5);}
-    ctx.fillStyle=col; ctx.fillRect(-11,-11,22,22); ctx.fillStyle='#e6c200'; ctx.fillRect(-7,-7,14,14);
-    ctx.fillStyle=col; ctx.beginPath(); ctx.arc(0,0,8,0,Math.PI*2); ctx.fill();
-    ctx.strokeStyle='#b89900'; ctx.lineWidth=2; ctx.stroke();
-    ctx.fillStyle='#888'; ctx.fillRect(-2,-h-5,4,14); ctx.fillStyle='#ccc'; ctx.fillRect(-1,-h-5,2,14);
-    ctx.fillStyle='#333'; ctx.fillRect(-3,-h-5,6,4); ctx.fillStyle='#333'; ctx.beginPath(); ctx.arc(0,0,3,0,Math.PI*2); ctx.fill();
+    ctx.rotate(ang); 
+    const h=s/2;
+    ctx.fillStyle='#2c2c2c'; 
+    ctx.fillRect(-h,-h,7,s); 
+    ctx.fillRect(h-7,-h,7,s);
+    ctx.fillStyle='#4a4a4a'; 
+    for(let i=-h;i<h;i+=9){
+      ctx.fillRect(-h+1,i,3,5);
+      ctx.fillRect(h-4,i,3,5);
+    }    ctx.fillStyle=col; 
+    ctx.fillRect(-11,-11,22,22); 
+    ctx.fillStyle='#e6c200'; 
+    ctx.fillRect(-7,-7,14,14);
+    ctx.fillStyle=col; 
+    ctx.beginPath(); 
+    ctx.arc(0,0,8,0,Math.PI*2); 
+    ctx.fill();
+    ctx.strokeStyle='#b89900'; 
+    ctx.lineWidth=2; 
+    ctx.stroke();
+    ctx.fillStyle='#888'; 
+    ctx.fillRect(-2,-h-5,4,14); 
+    ctx.fillStyle='#ccc'; 
+    ctx.fillRect(-1,-h-5,2,14);
+    ctx.fillStyle='#333'; 
+    ctx.fillRect(-3,-h-5,6,4); 
+    ctx.fillStyle='#333'; 
+    ctx.beginPath(); 
+    ctx.arc(0,0,3,0,Math.PI*2); 
+    ctx.fill();
     ctx.restore();
   }
 
   function update() {
     if(state !== 'playing') return;
 
-    spawnTimer++; if(spawnTimer > 100) { spawnEnemy(); spawnTimer = 0; }
+    spawnTimer++; 
+    if(spawnTimer > 100) { 
+      spawnEnemy(); 
+      spawnTimer = 0; 
+    }
     if(hitFlash > 0) hitFlash--;
     if(player.invincible > 0) player.invincible--;
     if(base.hitCooldown > 0) base.hitCooldown--;
@@ -284,15 +527,21 @@
     // Игрок
     if(fireCooldown > 0) fireCooldown--;
     if(keys.Space && fireCooldown <= 0 && player.alive) {
-      bullets.push({x: player.x+18-5, y: player.y+18-5, dir: player.direction, owner: 'player'});
-      fireCooldown = FIRE_RATE; playSound('shoot');
+      bullets.push({
+        x: player.x+18-5, 
+        y: player.y+18-5, 
+        dir: player.direction, 
+        owner: 'player'
+      });
+      fireCooldown = FIRE_RATE; 
+      playSound('shoot');
     }
     if(player.alive) {
-      let nx = player.x, ny = player.y;
-      if(keys.ArrowUp) { ny -= player.speed; player.direction = 'up'; }
+      let nx = player.x, ny = player.y;      if(keys.ArrowUp) { ny -= player.speed; player.direction = 'up'; }
       if(keys.ArrowDown) { ny += player.speed; player.direction = 'down'; }
       if(keys.ArrowLeft) { nx -= player.speed; player.direction = 'left'; }
-      if(keys.ArrowRight) { nx += player.speed; player.direction = 'right'; }      
+      if(keys.ArrowRight) { nx += player.speed; player.direction = 'right'; }
+      
       const pr = {x:nx, y:ny, w:player.size, h:player.size};
       let col = nx<0||ny<0||nx>GAME_SIZE-player.size||ny>GAME_SIZE-player.size;
       if(!col) for(let w of walls) if(intersect(pr,w)) col=true;
@@ -304,11 +553,20 @@
     // Враги
     enemies.forEach(e => {
       e.moveTimer++;
-      if(e.moveTimer > 60) { e.direction = ['up','down','left','right'][Math.floor(Math.random()*4)]; e.moveTimer = 0; }
+      if(e.moveTimer > 60) { 
+        e.direction = ['up','down','left','right'][Math.floor(Math.random()*4)]; 
+        e.moveTimer = 0; 
+      }
       e.shootTimer++;
       if(e.shootTimer > 90) {
-        bullets.push({x: e.x+18-5, y: e.y+18-5, dir: e.direction, owner: 'enemy'});
-        e.shootTimer = 0; playSound('shoot');
+        bullets.push({
+          x: e.x+18-5, 
+          y: e.y+18-5, 
+          dir: e.direction, 
+          owner: 'enemy'
+        });
+        e.shootTimer = 0; 
+        playSound('shoot');
       }
       let nx=e.x, ny=e.y;
       if(e.direction==='up') ny-=e.speed;
@@ -328,30 +586,44 @@
     for(let i=bullets.length-1; i>=0; i--) {
       let b=bullets[i];
       if(b.dir==='up') b.y-=BULLET_SPEED;
-      else if(b.dir==='down') b.y+=BULLET_SPEED;
-      else if(b.dir==='left') b.x-=BULLET_SPEED;
+      else if(b.dir==='down') b.y+=BULLET_SPEED;      else if(b.dir==='left') b.x-=BULLET_SPEED;
       else b.x+=BULLET_SPEED;
-      if(b.x<-10||b.x>GAME_SIZE+10||b.y<-10||b.y>GAME_SIZE+10) { bullets.splice(i,1); continue; }
+      if(b.x<-10||b.x>GAME_SIZE+10||b.y<-10||b.y>GAME_SIZE+10) { 
+        bullets.splice(i,1); 
+        continue; 
+      }
       const br={x:b.x,y:b.y,w:BULLET_SIZE,h:BULLET_SIZE};
       let hit=false;
       for(let w of walls) if(intersect(br,w)) { hit=true; break; }
       
-      // Попадание в базу
       if(!hit && intersect(br,base) && base.hitCooldown <= 0) { 
-        base.hp--; base.hitCooldown = 30; playSound('hit');
-        if(base.hp <= 0) { base.destroyed=true; state='gameOver'; showOverlay('БАЗА УНИЧТОЖЕНА', `Счёт: ${score}`); }
+        base.hp--; 
+        base.hitCooldown = 30; 
+        playSound('hit');
+        if(base.hp <= 0) { 
+          base.destroyed=true; 
+          state='gameOver'; 
+          showOverlay('💥 БАЗА УНИЧТОЖЕНА', `Счёт: ${score}`); 
+        }
         hit=true; 
       }
-      // Попадание во врага
+
       if(!hit && b.owner==='player') {
         for(let j=enemies.length-1; j>=0; j--) {
           if(intersect(br, {x:enemies[j].x,y:enemies[j].y,w:enemies[j].size,h:enemies[j].size})) {
-            hit=true; score+=100; enemies.splice(j,1); updateHUD(); playSound('explode'); break;
+            hit=true; 
+            score+=100; 
+            enemies.splice(j,1); 
+            updateHUD(); 
+            playSound('explode'); 
+            break;
           }
         }
       }
-      // Попадание в игрока
-      if(!hit && b.owner==='enemy' && player.alive && intersect(br, {x:player.x,y:player.y,w:player.size,h:player.size})) { hit=true; playerHit(); }
+      if(!hit && b.owner==='enemy' && player.alive && intersect(br, {x:player.x,y:player.y,w:player.size,h:player.size})) { 
+        hit=true; 
+        playerHit(); 
+      }
       if(hit) bullets.splice(i,1);
     }
 
@@ -363,21 +635,35 @@
         currentLevel++;
         loadLevel(currentLevel);
       }, 1500);
-      showOverlay(`УРОВЕНЬ ${currentLevel+1} ПРОЙДЕН`, 'Загрузка следующего...');
-    }
+      showOverlay(`✅ УРОВЕНЬ ${currentLevel+1} ПРОЙДЕН`, 'Загрузка следующего...');    }
   }
 
   function draw() {
-    drawBackground(); drawWalls(); drawBase();
+    drawBackground(); 
+    drawWalls(); 
+    drawBase();
     ctx.fillStyle='#FFF';
-    bullets.forEach(b => { ctx.beginPath(); ctx.arc(b.x+5, b.y+5, 5, 0, Math.PI*2); ctx.fill(); });
+    bullets.forEach(b => { 
+      ctx.beginPath(); 
+      ctx.arc(b.x+5, b.y+5, 5, 0, Math.PI*2); 
+      ctx.fill(); 
+    });
     enemies.forEach(e => drawTank(e.x, e.y, e.size, e.direction, e.color));
     if(player.alive) drawTank(player.x, player.y, player.size, player.direction, player.color, player.invincible>0);
-    if(hitFlash>0) { ctx.fillStyle=`rgba(255,0,0,${hitFlash*0.08})`; ctx.fillRect(0,0,GAME_SIZE,GAME_SIZE); }
+    if(hitFlash>0) { 
+      ctx.fillStyle=`rgba(255,0,0,${hitFlash*0.08})`; 
+      ctx.fillRect(0,0,GAME_SIZE,GAME_SIZE); 
+    }
   }
 
-  function loop() { update(); draw(); requestAnimationFrame(loop); }
-  showOverlay('ТАНЧИКИ v2.0', 'Тапни чтобы начать');
+  function loop() { 
+    update(); 
+    draw(); 
+    requestAnimationFrame(loop); 
+  }
+
+  // Показываем стартовый экран
+  showOverlay('ТАНЧИКИ v2.1', 'Тапни чтобы начать');
   loop();
 </script>
 </body>
