@@ -3,100 +3,214 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Танчики v0.2 (Брусчатка)</title>
+<title>Танчики v0.8 (Стрельба)</title>
 <style>
-  body {
-    margin: 0;
-    background-color: #111;
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+  body { margin: 0; background: #111; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; touch-action: none; }
+  canvas { border: 4px solid #333; box-shadow: 0 0 20px rgba(0,0,0,0.8); max-width: 100%; max-height: 100%; }
+  
+  #controls {
+    position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%);
+    display: grid; grid-template-columns: 60px 60px 60px; grid-template-rows: 60px 60px 60px;
+    gap: 6px; z-index: 100; user-select: none; -webkit-user-select: none;
   }
-  canvas {
-    border: 4px solid #333;
-    box-shadow: 0 0 20px rgba(0,0,0,0.8);
+  .ctrl-btn {
+    width: 60px; height: 60px; background: rgba(255,255,255,0.15);
+    border: 2px solid rgba(255,255,255,0.4); border-radius: 12px;
+    color: #fff; font-size: 24px; display: flex; align-items: center; justify-content: center;
+    touch-action: manipulation; cursor: pointer; transition: background 0.1s;
   }
+  .ctrl-btn:active, .ctrl-btn.active { background: rgba(255,215,0,0.5); border-color: #FFD700; }
+  
+  #fire  { grid-column: 2; grid-row: 1; background: rgba(255,50,50,0.3); border-color: #ff5555; font-size: 20px; }
+  #fire:active, #fire.active { background: rgba(255,50,50,0.8); }
+  #up    { grid-column: 2; grid-row: 2; }
+  #left  { grid-column: 1; grid-row: 3; }
+  #down  { grid-column: 2; grid-row: 3; }
+  #right { grid-column: 3; grid-row: 3; }
+
+  #gameOver {
+    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.85); color: #fff; flex-direction: column;
+    align-items: center; justify-content: center; z-index: 200; font-family: sans-serif;
+  }
+  #gameOver h1 { margin: 0 0 10px; font-size: 32px; color: #ff5555; }
+  #gameOver p { margin: 0; font-size: 18px; color: #aaa; }
 </style>
 </head>
 <body>
-
 <canvas id="gameCanvas"></canvas>
+
+<div id="controls">
+  <div class="ctrl-btn" id="fire">🔥</div>
+  <div class="ctrl-btn" id="up">▲</div>
+  <div class="ctrl-btn" id="left">◀</div>
+  <div class="ctrl-btn" id="down">▼</div>
+  <div class="ctrl-btn" id="right">▶</div>
+</div>
+<div id="gameOver">
+  <h1>БАЗА УНИЧТОЖЕНА</h1>
+  <p>Тапни, чтобы начать заново</p>
+</div>
 
 <script>
   const canvas = document.getElementById('gameCanvas');
   const ctx = canvas.getContext('2d');
-
   const GAME_SIZE = 520; 
-  canvas.width = GAME_SIZE;
-  canvas.height = GAME_SIZE;
+  canvas.width = GAME_SIZE; canvas.height = GAME_SIZE;
 
-  const player = {
-    x: 200, y: 200, size: 40, speed: 3, 
-    color: '#FFD700', direction: 'up'
-  };
+  let gameOver = false;
+  const player = { x: 200, y: 460, size: 40, speed: 3, color: '#FFD700', direction: 'up' };
+  const base = { x: 240, y: 460, w: 40, h: 40, destroyed: false };
+  
+  const bullets = [];
+  let fireCooldown = 0;
+  const FIRE_RATE = 12;
+  const BULLET_SPEED = 7;
+  const BULLET_SIZE = 6;
 
-  const keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false };
+  const keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false, Space: false };
+
+  function setupControls() {
+    const btnMap = { 'up': 'ArrowUp', 'down': 'ArrowDown', 'left': 'ArrowLeft', 'right': 'ArrowRight', 'fire': 'Space' };
+    for (let id in btnMap) {
+      const btn = document.getElementById(id);
+      const key = btnMap[id];
+      const start = (e) => { e.preventDefault(); keys[key] = true; btn.classList.add('active'); };
+      const end = (e) => { e.preventDefault(); keys[key] = false; btn.classList.remove('active'); };
+      btn.addEventListener('touchstart', start, { passive: false });
+      btn.addEventListener('touchend', end, { passive: false });
+      btn.addEventListener('mousedown', start);
+      btn.addEventListener('mouseup', end);
+      btn.addEventListener('mouseleave', end);
+    }
+  }
+  setupControls();
 
   window.addEventListener('keydown', (e) => { if(keys.hasOwnProperty(e.code)) keys[e.code] = true; });
   window.addEventListener('keyup', (e) => { if(keys.hasOwnProperty(e.code)) keys[e.code] = false; });
 
-  // ФУНКЦИЯ РИСОВАНИЯ ФОНА (Брусчатка)
-  function drawBackground() {
-    // Сначала заливаем всё "швом" (темно-серый)
-    ctx.fillStyle = '#2a2a2a'; 
-    ctx.fillRect(0, 0, GAME_SIZE, GAME_SIZE);
-    // Рисуем сами кирпичи
-    ctx.fillStyle = '#555555'; // Цвет кирпича
-    const w = 40; // ширина кирпича
-    const h = 20; // высота кирпича
+  // Рестарт по тапу
+  document.getElementById('gameOver').addEventListener('click', () => {
+    base.destroyed = false; gameOver = false;
+    document.getElementById('gameOver').style.display = 'none';
+    player.x = 200; player.y = 460;
+  });
 
+  const walls = [    {x: 200, y: 440, w: 40, h: 20}, {x: 280, y: 440, w: 40, h: 20}, {x: 240, y: 420, w: 40, h: 20},
+    {x: 40, y: 40, w: 60, h: 40}, {x: 230, y: 40, w: 60, h: 40}, {x: 420, y: 40, w: 60, h: 40},
+    {x: 120, y: 160, w: 40, h: 40}, {x: 360, y: 160, w: 40, h: 40}, {x: 240, y: 200, w: 40, h: 80},
+    {x: 80, y: 280, w: 40, h: 60}, {x: 400, y: 280, w: 40, h: 60},
+    {x: 120, y: 380, w: 60, h: 40}, {x: 340, y: 380, w: 60, h: 40}
+  ];
+
+  function checkCollision(r1, r2) {
+    return r1.x < r2.x + r2.w && r1.x + r1.w > r2.x && r1.y < r2.y + r2.h && r1.y + r1.h > r2.y;
+  }
+
+  function drawBackground() {
+    ctx.fillStyle = '#2a2a2a'; ctx.fillRect(0, 0, GAME_SIZE, GAME_SIZE);
+    ctx.fillStyle = '#555555'; const w = 40, h = 20;
     for (let y = 0; y < GAME_SIZE; y += h) {
-      // Сдвигаем каждый второй ряд для эффекта кладки
       const offset = (y / h) % 2 === 0 ? 0 : w / 2;
-      
-      for (let x = -w; x < GAME_SIZE; x += w) {
-        // Рисуем кирпич с небольшим отступом (чтобы швы были видны)
-        ctx.fillRect(x + offset + 1, y + 1, w - 2, h - 2);
-      }
+      for (let x = -w; x < GAME_SIZE; x += w) ctx.fillRect(x + offset + 1, y + 1, w - 2, h - 2);
     }
   }
 
-  function update() {
-    if (keys.ArrowUp) { player.y -= player.speed; player.direction = 'up'; }
-    if (keys.ArrowDown) { player.y += player.speed; player.direction = 'down'; }
-    if (keys.ArrowLeft) { player.x -= player.speed; player.direction = 'left'; }
-    if (keys.ArrowRight) { player.x += player.speed; player.direction = 'right'; }
+  function drawBase() {
+    if (base.destroyed) {
+      ctx.fillStyle = '#333'; ctx.beginPath(); ctx.arc(base.x+20, base.y+20, 20, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#f00'; ctx.font = '20px Arial'; ctx.fillText('💥', base.x+10, base.y+28);
+    } else {
+      ctx.fillStyle = '#8B4513'; ctx.fillRect(base.x, base.y, base.w, base.h);
+      ctx.fillStyle = '#DAA520'; ctx.beginPath(); ctx.arc(base.x+20, base.y+15, 10, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(base.x+16, base.y+12, 3, 0, Math.PI*2); ctx.arc(base.x+24, base.y+12, 3, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(base.x+16, base.y+12, 1.5, 0, Math.PI*2); ctx.arc(base.x+24, base.y+12, 1.5, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#FFA500'; ctx.beginPath(); ctx.moveTo(base.x+20, base.y+18); ctx.lineTo(base.x+17, base.y+24); ctx.lineTo(base.x+23, base.y+24); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#8B4513'; ctx.fillRect(base.x-5, base.y+20, 12, 15); ctx.fillRect(base.x+33, base.y+20, 12, 15);
+      ctx.fillStyle = '#FFD700'; ctx.font = 'bold 12px Arial'; ctx.fillText('EAGLE', base.x+2, base.y+52);
+    }
+  }
 
-    // Границы
-    if (player.x < 0) player.x = 0;
-    if (player.y < 0) player.y = 0;
-    if (player.x > GAME_SIZE - player.size) player.x = GAME_SIZE - player.size;
-    if (player.y > GAME_SIZE - player.size) player.y = GAME_SIZE - player.size;
+  function drawWalls() {
+    ctx.fillStyle = '#8B4513';
+    walls.forEach(w => { ctx.fillRect(w.x, w.y, w.w, w.h); ctx.strokeStyle = '#5C2E0B'; ctx.lineWidth = 2; ctx.strokeRect(w.x, w.y, w.w, w.h); });
+  }
+
+  function drawTank(x, y, size, dir, color) {
+    ctx.save(); ctx.translate(x+size/2, y+size/2);
+    const angles = { 'up':0, 'right':Math.PI/2, 'down':Math.PI, 'left':-Math.PI/2 };
+    ctx.rotate(angles[dir]||0); const h = size/2;
+    ctx.fillStyle = '#2c2c2c'; ctx.fillRect(-h,-h,8,size); ctx.fillRect(h-8,-h,8,size);
+    ctx.fillStyle = '#4a4a4a'; for(let i=-h; i<h; i+=10) { ctx.fillRect(-h+2,i,4,6); ctx.fillRect(h-6,i,4,6); }
+    ctx.fillStyle = color; ctx.fillRect(-12,-12,24,24); ctx.fillStyle = '#e6c200'; ctx.fillRect(-8,-8,16,16);
+    ctx.fillStyle = color; ctx.beginPath(); ctx.arc(0,0,9,0,Math.PI*2); ctx.fill(); ctx.strokeStyle='#b89900'; ctx.lineWidth=2; ctx.stroke();
+    ctx.fillStyle = '#888'; ctx.fillRect(-3,-h-6,6,16); ctx.fillStyle='#ccc'; ctx.fillRect(-1,-h-6,2,16);
+    ctx.fillStyle='#333'; ctx.fillRect(-4,-h-6,8,5); ctx.fillStyle='#333'; ctx.beginPath(); ctx.arc(0,0,4,0,Math.PI*2); ctx.fill();    ctx.restore();
+  }
+
+  function update() {
+    if (gameOver) return;
+
+    if (fireCooldown > 0) fireCooldown--;
+    if (keys['Space'] && fireCooldown <= 0) {
+      bullets.push({
+        x: player.x + player.size/2 - BULLET_SIZE/2,
+        y: player.y + player.size/2 - BULLET_SIZE/2,
+        dir: player.direction,
+        life: 4 // Игнорируем столкновения первые 4 кадра (чтобы не убить себя)
+      });
+      fireCooldown = FIRE_RATE;
+    }
+
+    // Движение игрока
+    let nextX = player.x, nextY = player.y;
+    if (keys.ArrowUp) { nextY -= player.speed; player.direction = 'up'; }
+    if (keys.ArrowDown) { nextY += player.speed; player.direction = 'down'; }
+    if (keys.ArrowLeft) { nextX -= player.speed; player.direction = 'left'; }
+    if (keys.ArrowRight) { nextX += player.speed; player.direction = 'right'; }
+
+    if (nextX < 0) nextX = 0; if (nextY < 0) nextY = 0;
+    if (nextX > GAME_SIZE - player.size) nextX = GAME_SIZE - player.size;
+    if (nextY > GAME_SIZE - player.size) nextY = GAME_SIZE - player.size;
+
+    let collision = false;
+    const pRect = {x: nextX, y: nextY, w: player.size, h: player.size};
+    for (let w of walls) if (checkCollision(pRect, w)) { collision = true; break; }
+    if (!collision && checkCollision(pRect, base)) collision = true;
+    if (!collision) { player.x = nextX; player.y = nextY; }
+
+    // Пули
+    for (let i = bullets.length - 1; i >= 0; i--) {
+      let b = bullets[i];
+      if (b.dir === 'up') b.y -= BULLET_SPEED;
+      else if (b.dir === 'down') b.y += BULLET_SPEED;
+      else if (b.dir === 'left') b.x -= BULLET_SPEED;
+      else if (b.dir === 'right') b.x += BULLET_SPEED;
+
+      if (b.life > 0) { b.life--; continue; }
+
+      if (b.x < 0 || b.x > GAME_SIZE || b.y < 0 || b.y > GAME_SIZE) { bullets.splice(i, 1); continue; }
+
+      const bRect = {x: b.x, y: b.y, w: BULLET_SIZE, h: BULLET_SIZE};
+      let hit = false;
+      for (let w of walls) if (checkCollision(bRect, w)) { hit = true; break; }
+      if (!hit && checkCollision(bRect, base)) { hit = true; base.destroyed = true; gameOver = true; document.getElementById('gameOver').style.display = 'flex'; }      
+      if (hit) bullets.splice(i, 1);
+    }
   }
 
   function draw() {
-    // Вместо серого фона вызываем функцию с кирпичами
-    drawBackground();
-
-    // Рисуем танк
-    ctx.fillStyle = player.color;
-    ctx.fillRect(player.x, player.y, player.size, player.size);
+    drawBackground(); drawWalls(); drawBase();
     
     ctx.fillStyle = '#FFF';
-    const gunSize = 10;
-    if (player.direction === 'up') ctx.fillRect(player.x + 15, player.y - 10, gunSize, 20);
-    else if (player.direction === 'down') ctx.fillRect(player.x + 15, player.y + 30, gunSize, 20);
-    else if (player.direction === 'left') ctx.fillRect(player.x - 10, player.y + 15, 20, gunSize);
-    else if (player.direction === 'right') ctx.fillRect(player.x + 30, player.y + 15, 20, gunSize);
+    bullets.forEach(b => {
+      ctx.beginPath(); ctx.arc(b.x + BULLET_SIZE/2, b.y + BULLET_SIZE/2, BULLET_SIZE/2, 0, Math.PI*2); ctx.fill();
+    });
+
+    drawTank(player.x, player.y, player.size, player.direction, player.color);
   }
 
-  function gameLoop() {
-    update();
-    draw();
-    requestAnimationFrame(gameLoop);
-  }
+  function gameLoop() { update(); draw(); requestAnimationFrame(gameLoop); }
   gameLoop();
 </script>
 </body>
