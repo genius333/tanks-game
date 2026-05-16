@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Танчики v2.1</title>
+<title>Танчики v3.0 (Адаптивная)</title>
 <style>
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
   body { 
@@ -12,23 +12,30 @@
     display: flex; 
     flex-direction: column; 
     height: 100vh; 
+    height: 100dvh; /* Dynamic viewport height для мобильных */
     touch-action: none; 
     font-family: sans-serif; 
     user-select: none;
   }
+  
+  /* HUD */
   #hud { 
-    height: 40px; 
+    height: 8vh; /* Адаптивная высота */
+    min-height: 35px;
+    max-height: 50px;
     background: #222; 
     color: #fff; 
     display: flex; 
     justify-content: space-around; 
     align-items: center; 
     font-weight: bold; 
-    font-size: 15px; 
+    font-size: clamp(12px, 4vw, 18px); /* Адаптивный шрифт */
     border-bottom: 2px solid #444; 
     flex-shrink: 0; 
   }
   .hud-item span { color: #FFD700; }
+  
+  /* Игровая зона */
   #game-area { 
     flex: 1; 
     display: flex; 
@@ -37,66 +44,88 @@
     background: #000; 
     overflow: hidden; 
     position: relative; 
+    min-height: 0;
+    padding: 5px;
   }
-  canvas { 
-    width: 100%; 
+  canvas {     width: 100%; 
     height: 100%; 
-    object-fit: contain; 
+    object-fit: contain; /* Сохраняет пропорции */
     background: #000; 
     display: block;
+    max-width: 100%;
+    max-height: 100%;
   }
+  
+  /* Панель управления - АДАПТИВНАЯ */
   #controls { 
-    height: 140px; 
-    background: #111;     display: flex; 
+    height: 18vh; /* Процент от высоты экрана */
+    min-height: 90px; /* Минимум */
+    max-height: 140px; /* Максимум */
+    background: #111; 
+    display: flex; 
     justify-content: space-between; 
     align-items: center; 
-    padding: 10px 20px; 
+    padding: 5px 15px; 
     flex-shrink: 0; 
   }
+  
+  /* Кнопка огня */
   #fire-btn { 
-    width: 75px; 
-    height: 75px; 
+    width: 12vh;
+    height: 12vh;
+    min-width: 60px;
+    min-height: 60px;
+    max-width: 80px;
+    max-height: 80px;
     background: rgba(255,50,50,0.3); 
     border: 3px solid #ff5555; 
     border-radius: 50%; 
     color: #fff; 
-    font-size: 30px; 
+    font-size: clamp(20px, 6vw, 32px);
     display: flex; 
     align-items: center; 
     justify-content: center; 
     cursor: pointer; 
+    flex-shrink: 0;
   }
   #fire-btn.active { background: rgba(255,50,50,0.8); transform: scale(0.95); }
+  
+  /* D-Pad */
   #dpad { 
     display: grid; 
-    grid-template-columns: 60px 60px 60px; 
-    grid-template-rows: 60px 60px; 
-    gap: 6px; 
+    grid-template-columns: 1fr 1fr 1fr; 
+    grid-template-rows: 1fr 1fr; 
+    gap: 4px;
+    width: 40vw;    max-width: 180px;
+    min-width: 150px;
+    height: auto;
+    aspect-ratio: 3/2;
   }
   .ctrl-btn { 
-    width: 60px; 
-    height: 60px; 
     background: rgba(255,255,255,0.1); 
     border: 2px solid rgba(255,255,255,0.3); 
-    border-radius: 12px; 
+    border-radius: 10px; 
     color: #fff; 
-    font-size: 24px; 
+    font-size: clamp(16px, 5vw, 28px);
     display: flex; 
     align-items: center; 
     justify-content: center; 
     cursor: pointer; 
+    transition: all 0.1s;
   }
-  .ctrl-btn.active { background: rgba(255,215,0,0.6); border-color: #FFD700; }
+  .ctrl-btn.active { background: rgba(255,215,0,0.6); border-color: #FFD700; transform: scale(0.95); }
   #up { grid-column: 2; grid-row: 1; } 
   #left { grid-column: 1; grid-row: 2; } 
   #down { grid-column: 2; grid-row: 2; } 
   #right { grid-column: 3; grid-row: 2; }
   
+  /* Оверлей */
   #overlay { 
     display: none; 
     position: absolute; 
     top: 0; 
-    left: 0;     width: 100%; 
+    left: 0; 
+    width: 100%; 
     height: 100%; 
     background: rgba(0,0,0,0.85); 
     color: #fff; 
@@ -106,14 +135,44 @@
     z-index: 200; 
     text-align: center; 
     cursor: pointer;
+    padding: 20px;
   }
   #overlay h1 { 
     margin: 0 0 10px; 
-    font-size: 28px; 
+    font-size: clamp(24px, 8vw, 36px); 
     color: #FFD700; 
     text-shadow: 0 0 10px #FFD700; 
   }
-  #overlay p { margin: 0; font-size: 16px; color: #aaa; }
+  #overlay p { 
+    margin: 0; 
+    font-size: clamp(14px, 4vw, 18px);     color: #aaa; 
+  }
+  
+  /* Для очень маленьких экранов */
+  @media (max-height: 600px) {
+    #hud { height: 7vh; font-size: 12px; }
+    #controls { height: 20vh; padding: 3px 10px; }
+    #fire-btn { min-width: 50px; min-height: 50px; }
+    #dpad { min-width: 120px; }
+    .ctrl-btn { font-size: 18px; }
+  }
+  
+  /* Для планшетов и больших экранов */
+  @media (min-width: 768px) {
+    #hud { height: 50px; font-size: 18px; }
+    #controls { height: 120px; }
+    #fire-btn { width: 80px; height: 80px; }
+    #dpad { width: 200px; }
+  }
+  
+  /* Альбомная ориентация на телефоне */
+  @media (max-height: 500px) and (orientation: landscape) {
+    #hud { height: 40px; }
+    #game-area { min-height: 60vh; }
+    #controls { height: 80px; }
+    #fire-btn { width: 60px; height: 60px; font-size: 24px; }
+    #dpad { width: 160px; }
+  }
 </style>
 </head>
 <body>
@@ -128,15 +187,14 @@
 <div id="game-area">
   <canvas id="gameCanvas"></canvas>
   <div id="overlay">
-    <h1 id="ov-title">ТАНЧИКИ v2.1</h1>
+    <h1 id="ov-title">ТАНЧИКИ v3.0</h1>
     <p id="ov-sub">Тапни чтобы начать</p>
   </div>
 </div>
 
 <div id="controls">
   <div id="fire-btn">🔥</div>
-  <div id="dpad">
-    <div class="ctrl-btn" id="up">▲</div>
+  <div id="dpad">    <div class="ctrl-btn" id="up">▲</div>
     <div class="ctrl-btn" id="left">◀</div>
     <div class="ctrl-btn" id="down">▼</div>
     <div class="ctrl-btn" id="right">▶</div>
@@ -145,7 +203,8 @@
 
 <script>
   const canvas = document.getElementById('gameCanvas');
-  const ctx = canvas.getContext('2d');  const GAME_SIZE = 520; 
+  const ctx = canvas.getContext('2d');
+  const GAME_SIZE = 520; 
   canvas.width = GAME_SIZE; 
   canvas.height = GAME_SIZE;
 
@@ -184,8 +243,7 @@
         gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
         osc.start(now); 
         osc.stop(now + 0.1);
-      } else if (type === 'explode') {
-        osc.type = 'sawtooth'; 
+      } else if (type === 'explode') {        osc.type = 'sawtooth'; 
         osc.frequency.setValueAtTime(150, now); 
         osc.frequency.exponentialRampToValueAtTime(30, now + 0.3);
         gain.gain.setValueAtTime(0.2, now); 
@@ -194,7 +252,8 @@
         osc.stop(now + 0.3);
       } else if (type === 'hit') {
         osc.type = 'triangle'; 
-        osc.frequency.setValueAtTime(300, now);         osc.frequency.linearRampToValueAtTime(50, now + 0.1);
+        osc.frequency.setValueAtTime(300, now); 
+        osc.frequency.linearRampToValueAtTime(50, now + 0.1);
         gain.gain.setValueAtTime(0.15, now); 
         gain.gain.linearRampToValueAtTime(0.01, now + 0.1);
         osc.start(now); 
@@ -233,8 +292,7 @@
         {x:40,y:240,w:60,h:40}, {x:420,y:240,w:60,h:40},
         {x:200,y:440,w:40,h:20}, {x:280,y:440,w:40,h:20}, {x:240,y:420,w:40,h:20}
       ], enemies: 25, speed: 1.5
-    },
-    {
+    },    {
       walls: [
         {x:60,y:60,w:80,h:40}, {x:220,y:60,w:80,h:40}, {x:380,y:60,w:80,h:40},
         {x:140,y:160,w:40,h:80}, {x:340,y:160,w:40,h:80},
@@ -243,7 +301,8 @@
         {x:180,y:400,w:40,h:40}, {x:300,y:400,w:40,h:40},
         {x:200,y:440,w:40,h:20}, {x:280,y:440,w:40,h:20}, {x:240,y:420,w:40,h:20}
       ], enemies: 30, speed: 1.8
-    }  ];
+    }
+  ];
 
   let score = 0, lives = 3, currentLevel = 0, state = 'levelStart';
   let spawnTimer = 0, hitFlash = 0, levelDelay = 0;
@@ -282,8 +341,7 @@
   bindBtn('fire-btn', 'Space');
   bindBtn('up', 'ArrowUp'); 
   bindBtn('down', 'ArrowDown'); 
-  bindBtn('left', 'ArrowLeft'); 
-  bindBtn('right', 'ArrowRight');
+  bindBtn('left', 'ArrowLeft');   bindBtn('right', 'ArrowRight');
 
   // Старт игры
   function startGame() {
@@ -292,7 +350,8 @@
       loadLevel(currentLevel);
     } else if (state === 'gameOver' || state === 'win') {
       resetGame();
-    }  }
+    }
+  }
 
   document.getElementById('overlay').addEventListener('click', startGame);
   document.getElementById('overlay').addEventListener('touchstart', startGame, {passive: false});
@@ -331,8 +390,7 @@
     updateHUD();
   }
 
-  function showOverlay(title, sub) {
-    const ov = document.getElementById('overlay');
+  function showOverlay(title, sub) {    const ov = document.getElementById('overlay');
     document.getElementById('ov-title').innerText = title;
     document.getElementById('ov-sub').innerText = sub || 'Тапни для продолжения';
     ov.style.display = 'flex';
@@ -341,7 +399,8 @@
   function updateHUD() {
     document.getElementById('lives').innerText = lives;
     document.getElementById('level').innerText = currentLevel + 1;
-    document.getElementById('score').innerText = score;    document.getElementById('enemies').innerText = enemiesToSpawn + enemies.length;
+    document.getElementById('score').innerText = score;
+    document.getElementById('enemies').innerText = enemiesToSpawn + enemies.length;
   }
 
   let walls = [];
@@ -380,8 +439,7 @@
         enemiesToSpawn--;
         updateHUD();
         return;
-      }
-    }
+      }    }
   }
 
   function playerHit() {
@@ -390,7 +448,8 @@
     hitFlash = 8; 
     updateHUD();
     playSound('hit');
-    if (lives <= 0) {      player.alive = false; 
+    if (lives <= 0) {
+      player.alive = false; 
       state = 'gameOver';
       showOverlay('💥 ТАНК УНИЧТОЖЕН', `Счёт: ${score}`);
     } else {
@@ -429,8 +488,7 @@
       ctx.arc(base.x+18, base.y+12, 9, 0, Math.PI*2); 
       ctx.fill();
       ctx.fillStyle = '#fff'; 
-      ctx.beginPath(); 
-      ctx.arc(base.x+14, base.y+9, 3, 0, Math.PI*2); 
+      ctx.beginPath();       ctx.arc(base.x+14, base.y+9, 3, 0, Math.PI*2); 
       ctx.arc(base.x+22, base.y+9, 3, 0, Math.PI*2); 
       ctx.fill();
       ctx.fillStyle = '#000'; 
@@ -439,7 +497,8 @@
       ctx.arc(base.x+22, base.y+9, 1.5, 0, Math.PI*2); 
       ctx.fill();
       ctx.fillStyle = '#FFA500'; 
-      ctx.beginPath();       ctx.moveTo(base.x+18, base.y+15); 
+      ctx.beginPath(); 
+      ctx.moveTo(base.x+18, base.y+15); 
       ctx.lineTo(base.x+15, base.y+21); 
       ctx.lineTo(base.x+21, base.y+21); 
       ctx.closePath(); 
@@ -478,8 +537,7 @@
     if(blink && Math.floor(Date.now()/80)%2===0) return;
     ctx.save(); 
     ctx.translate(x+s/2, y+s/2);
-    const ang = {up:0, right:Math.PI/2, down:Math.PI, left:-Math.PI/2}[dir]||0;
-    ctx.rotate(ang); 
+    const ang = {up:0, right:Math.PI/2, down:Math.PI, left:-Math.PI/2}[dir]||0;    ctx.rotate(ang); 
     const h=s/2;
     ctx.fillStyle='#2c2c2c'; 
     ctx.fillRect(-h,-h,7,s); 
@@ -488,7 +546,8 @@
     for(let i=-h;i<h;i+=9){
       ctx.fillRect(-h+1,i,3,5);
       ctx.fillRect(h-4,i,3,5);
-    }    ctx.fillStyle=col; 
+    }
+    ctx.fillStyle=col; 
     ctx.fillRect(-11,-11,22,22); 
     ctx.fillStyle='#e6c200'; 
     ctx.fillRect(-7,-7,14,14);
@@ -527,8 +586,7 @@
     // Игрок
     if(fireCooldown > 0) fireCooldown--;
     if(keys.Space && fireCooldown <= 0 && player.alive) {
-      bullets.push({
-        x: player.x+18-5, 
+      bullets.push({        x: player.x+18-5, 
         y: player.y+18-5, 
         dir: player.direction, 
         owner: 'player'
@@ -537,7 +595,8 @@
       playSound('shoot');
     }
     if(player.alive) {
-      let nx = player.x, ny = player.y;      if(keys.ArrowUp) { ny -= player.speed; player.direction = 'up'; }
+      let nx = player.x, ny = player.y;
+      if(keys.ArrowUp) { ny -= player.speed; player.direction = 'up'; }
       if(keys.ArrowDown) { ny += player.speed; player.direction = 'down'; }
       if(keys.ArrowLeft) { nx -= player.speed; player.direction = 'left'; }
       if(keys.ArrowRight) { nx += player.speed; player.direction = 'right'; }
@@ -576,8 +635,7 @@
       const er={x:nx,y:ny,w:e.size,h:e.size};
       let ec=nx<0||ny<0||nx>GAME_SIZE-e.size||ny>GAME_SIZE-e.size;
       if(!ec) for(let w of walls) if(intersect(er,w)) ec=true;
-      if(!ec && intersect(er,base)) ec=true;
-      if(!ec && player.alive && intersect(er,player)) ec=true;
+      if(!ec && intersect(er,base)) ec=true;      if(!ec && player.alive && intersect(er,player)) ec=true;
       if(!ec) for(let o of enemies) if(o!==e && intersect(er,o)) ec=true;
       if(!ec) { e.x=nx; e.y=ny; } else { e.moveTimer=100; }
     });
@@ -586,7 +644,8 @@
     for(let i=bullets.length-1; i>=0; i--) {
       let b=bullets[i];
       if(b.dir==='up') b.y-=BULLET_SPEED;
-      else if(b.dir==='down') b.y+=BULLET_SPEED;      else if(b.dir==='left') b.x-=BULLET_SPEED;
+      else if(b.dir==='down') b.y+=BULLET_SPEED;
+      else if(b.dir==='left') b.x-=BULLET_SPEED;
       else b.x+=BULLET_SPEED;
       if(b.x<-10||b.x>GAME_SIZE+10||b.y<-10||b.y>GAME_SIZE+10) { 
         bullets.splice(i,1); 
@@ -626,7 +685,6 @@
       }
       if(hit) bullets.splice(i,1);
     }
-
     // Проверка завершения уровня
     if(enemiesToSpawn === 0 && enemies.length === 0) {
       state = 'levelEnd';
@@ -635,7 +693,8 @@
         currentLevel++;
         loadLevel(currentLevel);
       }, 1500);
-      showOverlay(`✅ УРОВЕНЬ ${currentLevel+1} ПРОЙДЕН`, 'Загрузка следующего...');    }
+      showOverlay(`✅ УРОВЕНЬ ${currentLevel+1} ПРОЙДЕН`, 'Загрузка следующего...');
+    }
   }
 
   function draw() {
@@ -663,7 +722,7 @@
   }
 
   // Показываем стартовый экран
-  showOverlay('ТАНЧИКИ v2.1', 'Тапни чтобы начать');
+  showOverlay('ТАНЧИКИ v3.0', 'Тапни чтобы начать');
   loop();
 </script>
 </body>
