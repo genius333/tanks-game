@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Танчики v3.0 (Адаптивная)</title>
+<title>Танчики v3.1 (Двигатель)</title>
 <style>
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
   body { 
@@ -12,7 +12,7 @@
     display: flex; 
     flex-direction: column; 
     height: 100vh; 
-    height: 100dvh; /* Dynamic viewport height для мобильных */
+    height: 100dvh; 
     touch-action: none; 
     font-family: sans-serif; 
     user-select: none;
@@ -20,7 +20,7 @@
   
   /* HUD */
   #hud { 
-    height: 8vh; /* Адаптивная высота */
+    height: 8vh; 
     min-height: 35px;
     max-height: 50px;
     background: #222; 
@@ -29,7 +29,7 @@
     justify-content: space-around; 
     align-items: center; 
     font-weight: bold; 
-    font-size: clamp(12px, 4vw, 18px); /* Адаптивный шрифт */
+    font-size: clamp(12px, 4vw, 18px); 
     border-bottom: 2px solid #444; 
     flex-shrink: 0; 
   }
@@ -49,18 +49,16 @@
   }
   canvas {     width: 100%; 
     height: 100%; 
-    object-fit: contain; /* Сохраняет пропорции */
+    object-fit: contain; 
     background: #000; 
     display: block;
-    max-width: 100%;
-    max-height: 100%;
   }
   
-  /* Панель управления - АДАПТИВНАЯ */
+  /* Управление */
   #controls { 
-    height: 18vh; /* Процент от высоты экрана */
-    min-height: 90px; /* Минимум */
-    max-height: 140px; /* Максимум */
+    height: 18vh; 
+    min-height: 90px; 
+    max-height: 140px;
     background: #111; 
     display: flex; 
     justify-content: space-between; 
@@ -69,7 +67,6 @@
     flex-shrink: 0; 
   }
   
-  /* Кнопка огня */
   #fire-btn { 
     width: 12vh;
     height: 12vh;
@@ -90,17 +87,16 @@
   }
   #fire-btn.active { background: rgba(255,50,50,0.8); transform: scale(0.95); }
   
-  /* D-Pad */
   #dpad { 
     display: grid; 
     grid-template-columns: 1fr 1fr 1fr; 
     grid-template-rows: 1fr 1fr; 
     gap: 4px;
-    width: 40vw;    max-width: 180px;
+    width: 40vw;
+    max-width: 180px;
     min-width: 150px;
     height: auto;
-    aspect-ratio: 3/2;
-  }
+    aspect-ratio: 3/2;  }
   .ctrl-btn { 
     background: rgba(255,255,255,0.1); 
     border: 2px solid rgba(255,255,255,0.3); 
@@ -111,7 +107,6 @@
     align-items: center; 
     justify-content: center; 
     cursor: pointer; 
-    transition: all 0.1s;
   }
   .ctrl-btn.active { background: rgba(255,215,0,0.6); border-color: #FFD700; transform: scale(0.95); }
   #up { grid-column: 2; grid-row: 1; } 
@@ -119,7 +114,6 @@
   #down { grid-column: 2; grid-row: 2; } 
   #right { grid-column: 3; grid-row: 2; }
   
-  /* Оверлей */
   #overlay { 
     display: none; 
     position: absolute; 
@@ -143,35 +137,19 @@
     color: #FFD700; 
     text-shadow: 0 0 10px #FFD700; 
   }
-  #overlay p { 
-    margin: 0; 
-    font-size: clamp(14px, 4vw, 18px);     color: #aaa; 
-  }
+  #overlay p { margin: 0; font-size: clamp(14px, 4vw, 18px); color: #aaa; }
   
-  /* Для очень маленьких экранов */
   @media (max-height: 600px) {
     #hud { height: 7vh; font-size: 12px; }
     #controls { height: 20vh; padding: 3px 10px; }
     #fire-btn { min-width: 50px; min-height: 50px; }
     #dpad { min-width: 120px; }
-    .ctrl-btn { font-size: 18px; }
   }
-  
-  /* Для планшетов и больших экранов */
-  @media (min-width: 768px) {
+    @media (min-width: 768px) {
     #hud { height: 50px; font-size: 18px; }
     #controls { height: 120px; }
     #fire-btn { width: 80px; height: 80px; }
     #dpad { width: 200px; }
-  }
-  
-  /* Альбомная ориентация на телефоне */
-  @media (max-height: 500px) and (orientation: landscape) {
-    #hud { height: 40px; }
-    #game-area { min-height: 60vh; }
-    #controls { height: 80px; }
-    #fire-btn { width: 60px; height: 60px; font-size: 24px; }
-    #dpad { width: 160px; }
   }
 </style>
 </head>
@@ -187,14 +165,15 @@
 <div id="game-area">
   <canvas id="gameCanvas"></canvas>
   <div id="overlay">
-    <h1 id="ov-title">ТАНЧИКИ v3.0</h1>
+    <h1 id="ov-title">ТАНЧИКИ v3.1</h1>
     <p id="ov-sub">Тапни чтобы начать</p>
   </div>
 </div>
 
 <div id="controls">
   <div id="fire-btn">🔥</div>
-  <div id="dpad">    <div class="ctrl-btn" id="up">▲</div>
+  <div id="dpad">
+    <div class="ctrl-btn" id="up">▲</div>
     <div class="ctrl-btn" id="left">◀</div>
     <div class="ctrl-btn" id="down">▼</div>
     <div class="ctrl-btn" id="right">▶</div>
@@ -208,10 +187,14 @@
   canvas.width = GAME_SIZE; 
   canvas.height = GAME_SIZE;
 
-  // Аудио
+  // --- АУДИО СИСТЕМА ---
   let audioCtx = null;
   let audioEnabled = false;
   
+  // Для звука двигателя
+  let engineOscillator = null;
+  let engineGain = null;
+  let isEnginePlaying = false;
   function initAudio() {
     if (!audioCtx) {
       try {
@@ -226,10 +209,41 @@
     }
   }
 
+  // 🔊 Функция включения двигателя
+  function startEngineSound() {
+    if (!audioEnabled || !audioCtx || isEnginePlaying) return;
+    
+    engineOscillator = audioCtx.createOscillator();
+    engineGain = audioCtx.createGain();
+    
+    // Низкочастотный гул (как у трактора)
+    engineOscillator.type = 'sawtooth'; 
+    engineOscillator.frequency.setValueAtTime(50, audioCtx.currentTime);
+    
+    engineGain.gain.setValueAtTime(0.05, audioCtx.currentTime); // Громкость
+    
+    engineOscillator.connect(engineGain);
+    engineGain.connect(audioCtx.destination);
+    engineOscillator.start();
+    isEnginePlaying = true;
+  }
+
+  // 🔇 Функция выключения двигателя
+  function stopEngineSound() {
+    if (engineOscillator && isEnginePlaying) {
+      engineOscillator.stop();
+      engineOscillator.disconnect();
+      engineGain.disconnect();
+      engineOscillator = null;
+      engineGain = null;
+      isEnginePlaying = false;
+    }
+  }
+
+  // Остальные звуки (выстрел, взрыв)
   function playSound(type) {
     if (!audioEnabled || !audioCtx) return;
-    try {
-      const osc = audioCtx.createOscillator();
+    try {      const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
       osc.connect(gain); 
       gain.connect(audioCtx.destination);
@@ -243,7 +257,8 @@
         gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
         osc.start(now); 
         osc.stop(now + 0.1);
-      } else if (type === 'explode') {        osc.type = 'sawtooth'; 
+      } else if (type === 'explode') {
+        osc.type = 'sawtooth'; 
         osc.frequency.setValueAtTime(150, now); 
         osc.frequency.exponentialRampToValueAtTime(30, now + 0.3);
         gain.gain.setValueAtTime(0.2, now); 
@@ -268,19 +283,16 @@
         osc.start(now); 
         osc.stop(now + 0.4);
       }
-    } catch(e) {
-      console.log('Sound error:', e);
-    }
+    } catch(e) {}
   }
 
-  // Уровни
+  // --- УРОВНИ ---
   const LEVELS = [
     {
       walls: [
         {x:40,y:100,w:60,h:40}, {x:230,y:100,w:60,h:40}, {x:420,y:100,w:60,h:40},
         {x:120,y:180,w:40,h:40}, {x:360,y:180,w:40,h:40}, {x:240,y:220,w:40,h:80},
-        {x:80,y:300,w:40,h:60}, {x:400,y:300,w:40,h:60},
-        {x:120,y:380,w:60,h:40}, {x:340,y:380,w:60,h:40},
+        {x:80,y:300,w:40,h:60}, {x:400,y:300,w:40,h:60},        {x:120,y:380,w:60,h:40}, {x:340,y:380,w:60,h:40},
         {x:200,y:440,w:40,h:20}, {x:280,y:440,w:40,h:20}, {x:240,y:420,w:40,h:20}
       ], enemies: 20, speed: 1.2
     },
@@ -292,7 +304,8 @@
         {x:40,y:240,w:60,h:40}, {x:420,y:240,w:60,h:40},
         {x:200,y:440,w:40,h:20}, {x:280,y:440,w:40,h:20}, {x:240,y:420,w:40,h:20}
       ], enemies: 25, speed: 1.5
-    },    {
+    },
+    {
       walls: [
         {x:60,y:60,w:80,h:40}, {x:220,y:60,w:80,h:40}, {x:380,y:60,w:80,h:40},
         {x:140,y:160,w:40,h:80}, {x:340,y:160,w:40,h:80},
@@ -305,10 +318,10 @@
   ];
 
   let score = 0, lives = 3, currentLevel = 0, state = 'levelStart';
-  let spawnTimer = 0, hitFlash = 0, levelDelay = 0;
+  let spawnTimer = 0, hitFlash = 0;
   
   const player = { x: 100, y: 460, size: 36, speed: 3, color: '#FFD700', direction: 'up', alive: true, invincible: 0 };
-  const base = { x: 242, y: 462, w: 36, h: 36, hp: 3, maxHp: 3, destroyed: false, hitCooldown: 0 };
+  const base = { x: 242, y: 462, w: 36, h: 36, hp: 3, destroyed: false, hitCooldown: 0 };
   
   const bullets = [];
   let fireCooldown = 0;
@@ -318,18 +331,17 @@
   const enemies = [];
   const keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false, Space: false };
 
-  // Управление
+  // --- УПРАВЛЕНИЕ ---
   function bindBtn(id, key) {
     const btn = document.getElementById(id);
     const on = (e) => { 
       e.preventDefault(); 
-      initAudio();
+      initAudio(); // Включаем звук при первом нажатии
       keys[key] = true; 
       btn.classList.add('active'); 
     };
     const off = (e) => { 
-      e.preventDefault(); 
-      keys[key] = false; 
+      e.preventDefault();       keys[key] = false; 
       btn.classList.remove('active'); 
     };
     btn.addEventListener('touchstart', on, {passive: false});
@@ -341,29 +353,26 @@
   bindBtn('fire-btn', 'Space');
   bindBtn('up', 'ArrowUp'); 
   bindBtn('down', 'ArrowDown'); 
-  bindBtn('left', 'ArrowLeft');   bindBtn('right', 'ArrowRight');
+  bindBtn('left', 'ArrowLeft'); 
+  bindBtn('right', 'ArrowRight');
 
-  // Старт игры
+  // Старт/Рестарт
   function startGame() {
     initAudio();
-    if (state === 'levelStart') {
-      loadLevel(currentLevel);
-    } else if (state === 'gameOver' || state === 'win') {
-      resetGame();
-    }
+    if (state === 'levelStart') loadLevel(currentLevel);
+    else if (state === 'gameOver' || state === 'win') resetGame();
   }
 
   document.getElementById('overlay').addEventListener('click', startGame);
   document.getElementById('overlay').addEventListener('touchstart', startGame, {passive: false});
 
   function resetGame() {
-    score = 0; 
-    lives = 3; 
-    currentLevel = 0;
+    score = 0; lives = 3; currentLevel = 0;
     loadLevel(0);
   }
 
   function loadLevel(idx) {
+    stopEngineSound(); // Выключаем звук при переходе
     if (idx >= LEVELS.length) { 
       state = 'win'; 
       showOverlay('🏆 ПОБЕДА!', `Финальный счёт: ${score}`); 
@@ -372,28 +381,19 @@
     currentLevel = idx;
     const lvl = LEVELS[idx];
     walls = lvl.walls.map(w => ({...w}));
-    enemies.length = 0; 
-    bullets.length = 0;
-    player.x = 100; 
-    player.y = 460; 
-    player.alive = true; 
-    player.invincible = 60;
-    base.hp = 3; 
-    base.destroyed = false; 
-    base.hitCooldown = 0;
-    enemiesToSpawn = lvl.enemies; 
-    enemySpeed = lvl.speed;
-    spawnTimer = 0; 
-    hitFlash = 0; 
-    state = 'playing';
+    enemies.length = 0; bullets.length = 0;
+    player.x = 100; player.y = 460; player.alive = true; player.invincible = 60;
+    base.hp = 3; base.destroyed = false; base.hitCooldown = 0;
+    enemiesToSpawn = lvl.enemies; enemySpeed = lvl.speed;
+    spawnTimer = 0; hitFlash = 0; state = 'playing';
     document.getElementById('overlay').style.display = 'none';
     updateHUD();
   }
 
-  function showOverlay(title, sub) {    const ov = document.getElementById('overlay');
+  function showOverlay(title, sub) {    stopEngineSound();
     document.getElementById('ov-title').innerText = title;
     document.getElementById('ov-sub').innerText = sub || 'Тапни для продолжения';
-    ov.style.display = 'flex';
+    document.getElementById('overlay').style.display = 'flex';
   }
 
   function updateHUD() {
@@ -426,159 +426,84 @@
     spots.sort(() => Math.random() - 0.5);
     for(let s of spots) {
       if(isClear(s.x, s.y, 36)) {
-        enemies.push({ 
-          x: s.x, 
-          y: s.y, 
-          size: 36, 
-          speed: enemySpeed, 
-          color: '#FF4444', 
-          direction: 'down', 
-          moveTimer: 0, 
-          shootTimer: 80 
-        });
-        enemiesToSpawn--;
-        updateHUD();
-        return;
-      }    }
+        enemies.push({ x: s.x, y: s.y, size: 36, speed: enemySpeed, color: '#FF4444', direction: 'down', moveTimer: 0, shootTimer: 80 });
+        enemiesToSpawn--; updateHUD(); return;
+      }
+    }
   }
 
   function playerHit() {
     if(player.invincible > 0) return;
-    lives--; 
-    hitFlash = 8; 
-    updateHUD();
-    playSound('hit');
+    lives--; hitFlash = 8; updateHUD(); playSound('hit');
     if (lives <= 0) {
-      player.alive = false; 
-      state = 'gameOver';
+      player.alive = false; state = 'gameOver';
       showOverlay('💥 ТАНК УНИЧТОЖЕН', `Счёт: ${score}`);
     } else {
-      player.x = 100; 
-      player.y = 460; 
-      player.invincible = 90;
-    }
+      player.x = 100; player.y = 460; player.invincible = 90;    }
   }
 
   function drawBackground() {
-    ctx.fillStyle = '#2a2a2a'; 
-    ctx.fillRect(0, 0, GAME_SIZE, GAME_SIZE);
-    ctx.fillStyle = '#555555'; 
-    const w = 40, h = 20;
+    ctx.fillStyle = '#2a2a2a'; ctx.fillRect(0, 0, GAME_SIZE, GAME_SIZE);
+    ctx.fillStyle = '#555555'; const w = 40, h = 20;
     for (let y = 0; y < GAME_SIZE; y += h) {
       const off = (y / h) % 2 === 0 ? 0 : w / 2;
-      for (let x = -w; x < GAME_SIZE; x += w) 
-        ctx.fillRect(x + off + 1, y + 1, w - 2, h - 2);
+      for (let x = -w; x < GAME_SIZE; x += w) ctx.fillRect(x + off + 1, y + 1, w - 2, h - 2);
     }
   }
 
   function drawBase() {
     if (base.destroyed) {
-      ctx.fillStyle = '#333'; 
-      ctx.beginPath(); 
-      ctx.arc(base.x+18, base.y+18, 18, 0, Math.PI*2); 
-      ctx.fill();
-      ctx.fillStyle = '#555'; 
-      ctx.font = '10px Arial'; 
-      ctx.fillText('X', base.x+14, base.y+22);
+      ctx.fillStyle = '#333'; ctx.beginPath(); ctx.arc(base.x+18, base.y+18, 18, 0, Math.PI*2); ctx.fill();
     } else {
-      ctx.fillStyle = '#8B4513'; 
-      ctx.fillRect(base.x, base.y, base.w, base.h);
-      ctx.fillStyle = '#DAA520'; 
-      ctx.beginPath(); 
-      ctx.arc(base.x+18, base.y+12, 9, 0, Math.PI*2); 
-      ctx.fill();
-      ctx.fillStyle = '#fff'; 
-      ctx.beginPath();       ctx.arc(base.x+14, base.y+9, 3, 0, Math.PI*2); 
-      ctx.arc(base.x+22, base.y+9, 3, 0, Math.PI*2); 
-      ctx.fill();
-      ctx.fillStyle = '#000'; 
-      ctx.beginPath(); 
-      ctx.arc(base.x+14, base.y+9, 1.5, 0, Math.PI*2); 
-      ctx.arc(base.x+22, base.y+9, 1.5, 0, Math.PI*2); 
-      ctx.fill();
-      ctx.fillStyle = '#FFA500'; 
-      ctx.beginPath(); 
-      ctx.moveTo(base.x+18, base.y+15); 
-      ctx.lineTo(base.x+15, base.y+21); 
-      ctx.lineTo(base.x+21, base.y+21); 
-      ctx.closePath(); 
-      ctx.fill();
-      ctx.fillStyle = '#8B4513'; 
-      ctx.fillRect(base.x-4, base.y+18, 10, 14); 
-      ctx.fillRect(base.x+30, base.y+18, 10, 14);
-      
+      ctx.fillStyle = '#8B4513'; ctx.fillRect(base.x, base.y, base.w, base.h);
+      ctx.fillStyle = '#DAA520'; ctx.beginPath(); ctx.arc(base.x+18, base.y+12, 9, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(base.x+14, base.y+9, 3, 0, Math.PI*2); ctx.arc(base.x+22, base.y+9, 3, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(base.x+14, base.y+9, 1.5, 0, Math.PI*2); ctx.arc(base.x+22, base.y+9, 1.5, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#FFA500'; ctx.beginPath(); ctx.moveTo(base.x+18, base.y+15); ctx.lineTo(base.x+15, base.y+21); ctx.lineTo(base.x+21, base.y+21); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#8B4513'; ctx.fillRect(base.x-4, base.y+18, 10, 14); ctx.fillRect(base.x+30, base.y+18, 10, 14);
       if(base.hp < 3) {
-        ctx.strokeStyle = '#222'; 
-        ctx.lineWidth = 2; 
-        ctx.beginPath();
-        ctx.moveTo(base.x+5, base.y+5); 
-        ctx.lineTo(base.x+15, base.y+15);
-        ctx.moveTo(base.x+30, base.y+10); 
-        ctx.lineTo(base.x+20, base.y+25);
-        ctx.stroke();
+        ctx.strokeStyle = '#222'; ctx.lineWidth = 2; ctx.beginPath();
+        ctx.moveTo(base.x+5, base.y+5); ctx.lineTo(base.x+15, base.y+15);
+        ctx.moveTo(base.x+30, base.y+10); ctx.lineTo(base.x+20, base.y+25); ctx.stroke();
       }
-      ctx.fillStyle = '#FFD700'; 
-      ctx.font = 'bold 11px Arial'; 
-      ctx.fillText('EAGLE', base.x+3, base.y+48);
+      ctx.fillStyle = '#FFD700'; ctx.font = 'bold 11px Arial'; ctx.fillText('EAGLE', base.x+3, base.y+48);
     }
   }
 
   function drawWalls() {
     ctx.fillStyle = '#8B4513';
-    walls.forEach(w => { 
-      ctx.fillRect(w.x, w.y, w.w, w.h); 
-      ctx.strokeStyle = '#5C2E0B'; 
-      ctx.lineWidth = 2; 
-      ctx.strokeRect(w.x, w.y, w.w, w.h); 
-    });
+    walls.forEach(w => { ctx.fillRect(w.x, w.y, w.w, w.h); ctx.strokeStyle = '#5C2E0B'; ctx.lineWidth = 2; ctx.strokeRect(w.x, w.y, w.w, w.h); });
   }
 
   function drawTank(x, y, s, dir, col, blink=false) {
     if(blink && Math.floor(Date.now()/80)%2===0) return;
-    ctx.save(); 
-    ctx.translate(x+s/2, y+s/2);
-    const ang = {up:0, right:Math.PI/2, down:Math.PI, left:-Math.PI/2}[dir]||0;    ctx.rotate(ang); 
-    const h=s/2;
-    ctx.fillStyle='#2c2c2c'; 
-    ctx.fillRect(-h,-h,7,s); 
-    ctx.fillRect(h-7,-h,7,s);
-    ctx.fillStyle='#4a4a4a'; 
-    for(let i=-h;i<h;i+=9){
-      ctx.fillRect(-h+1,i,3,5);
-      ctx.fillRect(h-4,i,3,5);
-    }
-    ctx.fillStyle=col; 
-    ctx.fillRect(-11,-11,22,22); 
-    ctx.fillStyle='#e6c200'; 
-    ctx.fillRect(-7,-7,14,14);
-    ctx.fillStyle=col; 
-    ctx.beginPath(); 
-    ctx.arc(0,0,8,0,Math.PI*2); 
-    ctx.fill();
-    ctx.strokeStyle='#b89900'; 
-    ctx.lineWidth=2; 
-    ctx.stroke();
-    ctx.fillStyle='#888'; 
-    ctx.fillRect(-2,-h-5,4,14); 
-    ctx.fillStyle='#ccc'; 
-    ctx.fillRect(-1,-h-5,2,14);
-    ctx.fillStyle='#333'; 
-    ctx.fillRect(-3,-h-5,6,4); 
-    ctx.fillStyle='#333'; 
-    ctx.beginPath(); 
-    ctx.arc(0,0,3,0,Math.PI*2); 
-    ctx.fill();
+    ctx.save(); ctx.translate(x+s/2, y+s/2);
+    const ang = {up:0, right:Math.PI/2, down:Math.PI, left:-Math.PI/2}[dir]||0;
+    ctx.rotate(ang); const h=s/2;
+    ctx.fillStyle='#2c2c2c'; ctx.fillRect(-h,-h,7,s); ctx.fillRect(h-7,-h,7,s);
+    ctx.fillStyle='#4a4a4a'; for(let i=-h;i<h;i+=9){ctx.fillRect(-h+1,i,3,5);ctx.fillRect(h-4,i,3,5);}
+    ctx.fillStyle=col; ctx.fillRect(-11,-11,22,22); ctx.fillStyle='#e6c200'; ctx.fillRect(-7,-7,14,14);
+    ctx.fillStyle=col; ctx.beginPath(); ctx.arc(0,0,8,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle='#b89900'; ctx.lineWidth=2; ctx.stroke();
+    ctx.fillStyle='#888'; ctx.fillRect(-2,-h-5,4,14); ctx.fillStyle='#ccc'; ctx.fillRect(-1,-h-5,2,14);
+    ctx.fillStyle='#333'; ctx.fillRect(-3,-h-5,6,4); ctx.fillStyle='#333'; ctx.beginPath(); ctx.arc(0,0,3,0,Math.PI*2); ctx.fill();
     ctx.restore();
   }
-
   function update() {
-    if(state !== 'playing') return;
-
-    spawnTimer++; 
-    if(spawnTimer > 100) { 
-      spawnEnemy(); 
-      spawnTimer = 0; 
+    if(state !== 'playing') {
+      stopEngineSound(); // Если пауза/конец - выключаем двигатель
+      return;
     }
+
+    // Логика двигателя
+    const isMoving = keys.ArrowUp || keys.ArrowDown || keys.ArrowLeft || keys.ArrowRight;
+    if (isMoving && player.alive) {
+      if (!isEnginePlaying) startEngineSound();
+    } else {
+      if (isEnginePlaying) stopEngineSound();
+    }
+
+    spawnTimer++; if(spawnTimer > 100) { spawnEnemy(); spawnTimer = 0; }
     if(hitFlash > 0) hitFlash--;
     if(player.invincible > 0) player.invincible--;
     if(base.hitCooldown > 0) base.hitCooldown--;
@@ -586,13 +511,8 @@
     // Игрок
     if(fireCooldown > 0) fireCooldown--;
     if(keys.Space && fireCooldown <= 0 && player.alive) {
-      bullets.push({        x: player.x+18-5, 
-        y: player.y+18-5, 
-        dir: player.direction, 
-        owner: 'player'
-      });
-      fireCooldown = FIRE_RATE; 
-      playSound('shoot');
+      bullets.push({x: player.x+18-5, y: player.y+18-5, dir: player.direction, owner: 'player'});
+      fireCooldown = FIRE_RATE; playSound('shoot');
     }
     if(player.alive) {
       let nx = player.x, ny = player.y;
@@ -612,22 +532,12 @@
     // Враги
     enemies.forEach(e => {
       e.moveTimer++;
-      if(e.moveTimer > 60) { 
-        e.direction = ['up','down','left','right'][Math.floor(Math.random()*4)]; 
-        e.moveTimer = 0; 
-      }
+      if(e.moveTimer > 60) { e.direction = ['up','down','left','right'][Math.floor(Math.random()*4)]; e.moveTimer = 0; }
       e.shootTimer++;
       if(e.shootTimer > 90) {
-        bullets.push({
-          x: e.x+18-5, 
-          y: e.y+18-5, 
-          dir: e.direction, 
-          owner: 'enemy'
-        });
-        e.shootTimer = 0; 
-        playSound('shoot');
-      }
-      let nx=e.x, ny=e.y;
+        bullets.push({x: e.x+18-5, y: e.y+18-5, dir: e.direction, owner: 'enemy'});
+        e.shootTimer = 0; playSound('shoot');
+      }      let nx=e.x, ny=e.y;
       if(e.direction==='up') ny-=e.speed;
       if(e.direction==='down') ny+=e.speed;
       if(e.direction==='left') nx-=e.speed;
@@ -635,7 +545,8 @@
       const er={x:nx,y:ny,w:e.size,h:e.size};
       let ec=nx<0||ny<0||nx>GAME_SIZE-e.size||ny>GAME_SIZE-e.size;
       if(!ec) for(let w of walls) if(intersect(er,w)) ec=true;
-      if(!ec && intersect(er,base)) ec=true;      if(!ec && player.alive && intersect(er,player)) ec=true;
+      if(!ec && intersect(er,base)) ec=true;
+      if(!ec && player.alive && intersect(er,player)) ec=true;
       if(!ec) for(let o of enemies) if(o!==e && intersect(er,o)) ec=true;
       if(!ec) { e.x=nx; e.y=ny; } else { e.moveTimer=100; }
     });
@@ -643,86 +554,53 @@
     // Пули
     for(let i=bullets.length-1; i>=0; i--) {
       let b=bullets[i];
-      if(b.dir==='up') b.y-=BULLET_SPEED;
-      else if(b.dir==='down') b.y+=BULLET_SPEED;
-      else if(b.dir==='left') b.x-=BULLET_SPEED;
-      else b.x+=BULLET_SPEED;
-      if(b.x<-10||b.x>GAME_SIZE+10||b.y<-10||b.y>GAME_SIZE+10) { 
-        bullets.splice(i,1); 
-        continue; 
-      }
+      if(b.dir==='up') b.y-=BULLET_SPEED; else if(b.dir==='down') b.y+=BULLET_SPEED;
+      else if(b.dir==='left') b.x-=BULLET_SPEED; else b.x+=BULLET_SPEED;
+      
+      if(b.x<-10||b.x>GAME_SIZE+10||b.y<-10||b.y>GAME_SIZE+10) { bullets.splice(i,1); continue; }
+      
       const br={x:b.x,y:b.y,w:BULLET_SIZE,h:BULLET_SIZE};
       let hit=false;
       for(let w of walls) if(intersect(br,w)) { hit=true; break; }
       
       if(!hit && intersect(br,base) && base.hitCooldown <= 0) { 
-        base.hp--; 
-        base.hitCooldown = 30; 
-        playSound('hit');
-        if(base.hp <= 0) { 
-          base.destroyed=true; 
-          state='gameOver'; 
-          showOverlay('💥 БАЗА УНИЧТОЖЕНА', `Счёт: ${score}`); 
-        }
+        base.hp--; base.hitCooldown = 30; playSound('hit');
+        if(base.hp <= 0) { base.destroyed=true; state='gameOver'; showOverlay('💥 БАЗА УНИЧТОЖЕНА', `Счёт: ${score}`); }
         hit=true; 
       }
 
       if(!hit && b.owner==='player') {
         for(let j=enemies.length-1; j>=0; j--) {
           if(intersect(br, {x:enemies[j].x,y:enemies[j].y,w:enemies[j].size,h:enemies[j].size})) {
-            hit=true; 
-            score+=100; 
-            enemies.splice(j,1); 
-            updateHUD(); 
-            playSound('explode'); 
-            break;
+            hit=true; score+=100; enemies.splice(j,1); updateHUD(); playSound('explode'); break;
           }
         }
       }
       if(!hit && b.owner==='enemy' && player.alive && intersect(br, {x:player.x,y:player.y,w:player.size,h:player.size})) { 
-        hit=true; 
-        playerHit(); 
+        hit=true; playerHit(); 
       }
       if(hit) bullets.splice(i,1);
     }
-    // Проверка завершения уровня
+
+    // Уровень пройден
     if(enemiesToSpawn === 0 && enemies.length === 0) {
       state = 'levelEnd';
       playSound('levelup');
-      setTimeout(() => {
-        currentLevel++;
-        loadLevel(currentLevel);
-      }, 1500);
-      showOverlay(`✅ УРОВЕНЬ ${currentLevel+1} ПРОЙДЕН`, 'Загрузка следующего...');
+      setTimeout(() => { currentLevel++; loadLevel(currentLevel); }, 1500);      showOverlay(`✅ УРОВЕНЬ ${currentLevel+1} ПРОЙДЕН`, 'Загрузка...');
     }
   }
 
   function draw() {
-    drawBackground(); 
-    drawWalls(); 
-    drawBase();
+    drawBackground(); drawWalls(); drawBase();
     ctx.fillStyle='#FFF';
-    bullets.forEach(b => { 
-      ctx.beginPath(); 
-      ctx.arc(b.x+5, b.y+5, 5, 0, Math.PI*2); 
-      ctx.fill(); 
-    });
+    bullets.forEach(b => { ctx.beginPath(); ctx.arc(b.x+5, b.y+5, 5, 0, Math.PI*2); ctx.fill(); });
     enemies.forEach(e => drawTank(e.x, e.y, e.size, e.direction, e.color));
     if(player.alive) drawTank(player.x, player.y, player.size, player.direction, player.color, player.invincible>0);
-    if(hitFlash>0) { 
-      ctx.fillStyle=`rgba(255,0,0,${hitFlash*0.08})`; 
-      ctx.fillRect(0,0,GAME_SIZE,GAME_SIZE); 
-    }
+    if(hitFlash>0) { ctx.fillStyle=`rgba(255,0,0,${hitFlash*0.08})`; ctx.fillRect(0,0,GAME_SIZE,GAME_SIZE); }
   }
 
-  function loop() { 
-    update(); 
-    draw(); 
-    requestAnimationFrame(loop); 
-  }
-
-  // Показываем стартовый экран
-  showOverlay('ТАНЧИКИ v3.0', 'Тапни чтобы начать');
+  function loop() { update(); draw(); requestAnimationFrame(loop); }
+  showOverlay('ТАНЧИКИ v3.1', 'Тапни чтобы начать');
   loop();
 </script>
 </body>
